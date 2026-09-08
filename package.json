@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test lib/submit.test.ts"
+    "test": "node --experimental-strip-types --test lib/submit.test.ts lib/galleryCanvas.test.ts"
   },
   "dependencies": {
     "next": "16.3.4",
