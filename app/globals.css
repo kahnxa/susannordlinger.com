@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --plaster: #f3efe6;
+  --ink: #2c2a26;
+  --stone: #8a8478;
+  --hairline: #d8d2c6;
+  --paper: #faf7f1;
+}
+
+@theme inline {
+  --color-plaster: var(--plaster);
+  --color-ink: var(--ink);
+  --color-stone: var(--stone);
+  --color-hairline: var(--hairline);
+  --color-paper: var(--paper);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+}
+
+html,
+body {
+  background: var(--plaster);
+  color: var(--ink);
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-sans), Helvetica, sans-serif;
+  background-image:
+    radial-gradient(rgba(44, 42, 38, 0.035) 0.6px, transparent 0.6px);
+  background-size: 3px 3px;
+}
+
+a {
+  text-underline-offset: 0.22em;
+}
+
+::selection {
+  background: #2c2a26;
+  color: #f3efe6;
+}
+
+.work-row {
+  animation: rise 0.9s ease both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-row {
+    animation: none;
+  }
+}
