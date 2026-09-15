@@ -75,11 +75,19 @@ export async function POST(request: Request) {
   }
   outbound.append("attachment", photo, photo.name || "painting.jpg");
 
+  // FormSubmit rejects requests without a browser-like Origin/Referer, and
+  // ties form activation to the domain, so always present the production
+  // origin regardless of where this server runs (localhost, previews).
+  const origin = "https://susannordlinger.com";
   const response = await fetch(
     `https://formsubmit.co/ajax/${SUBMIT_TO_EMAIL}`,
     {
       method: "POST",
-      headers: { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+        Origin: origin,
+        Referer: `${origin}/submit`,
+      },
       body: outbound,
     },
   );
@@ -88,7 +96,9 @@ export async function POST(request: Request) {
     | { success?: string | boolean; message?: string }
     | null;
 
-  if (!response.ok) {
+  const succeeded =
+    response.ok && (payload?.success === true || payload?.success === "true");
+  if (!succeeded) {
     return NextResponse.json(
       {
         error:
