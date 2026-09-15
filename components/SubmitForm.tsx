@@ -120,7 +120,8 @@ export function SubmitForm() {
           Sent to Heather.
         </p>
         <p className="mt-4 text-[1rem] font-light leading-7 text-ink/80">
-          She will forward the painting so it can be uploaded to the site.
+          Thank you — the painting is on its way and will appear in the
+          gallery soon.
         </p>
         <button
           type="button"
