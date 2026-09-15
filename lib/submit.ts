@@ -11,10 +11,10 @@ export const PREPARE_MAX_EDGE = 2400;
 export const PREPARE_JPEG_QUALITY = 0.88;
 
 export type SubmitFields = {
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
   phone?: string;
-  title: string;
+  title?: string;
   medium?: string;
   dimensions?: string;
   year?: string;
@@ -30,16 +30,11 @@ export function validateSubmit(
   photo: { type: string; size: number } | null,
 ): SubmitIssue[] {
   const issues: SubmitIssue[] = [];
-  const name = fields.name.trim();
-  const email = fields.email.trim();
-  const title = fields.title.trim();
+  const email = fields.email?.trim();
 
-  if (!name) issues.push({ field: "name", message: "Please include your name." });
-  if (!email) issues.push({ field: "email", message: "Please include your email." });
-  else if (!EMAIL_PATTERN.test(email)) {
+  if (email && !EMAIL_PATTERN.test(email)) {
     issues.push({ field: "email", message: "That email does not look valid." });
   }
-  if (!title) issues.push({ field: "title", message: "Please include a painting title." });
 
   if (!photo) {
     issues.push({ field: "photo", message: "Please attach a photo of the painting." });
@@ -61,15 +56,16 @@ export function validateSubmit(
 }
 
 export function buildIntakeEmail(fields: SubmitFields) {
+  const title = fields.title?.trim();
   const lines = [
     "A painting was submitted for susannordlinger.com.",
     "Please forward it to be uploaded to the site.",
     "",
-    `From: ${fields.name.trim()}`,
-    `Email: ${fields.email.trim()}`,
+    fields.name?.trim() ? `From: ${fields.name.trim()}` : null,
+    fields.email?.trim() ? `Email: ${fields.email.trim()}` : null,
     fields.phone?.trim() ? `Phone: ${fields.phone.trim()}` : null,
     "",
-    `Title: ${fields.title.trim()}`,
+    title ? `Title: ${title}` : null,
     fields.medium?.trim() ? `Medium: ${fields.medium.trim()}` : null,
     fields.dimensions?.trim() ? `Dimensions: ${fields.dimensions.trim()}` : null,
     fields.year?.trim() ? `Year: ${fields.year.trim()}` : null,
@@ -77,7 +73,9 @@ export function buildIntakeEmail(fields: SubmitFields) {
   ].filter((line): line is string => line !== null);
 
   return {
-    subject: `New painting for the website: ${fields.title.trim()}`,
+    subject: title
+      ? `New painting for the website: ${title}`
+      : "New painting for the website",
     text: lines.join("\n"),
   };
 }

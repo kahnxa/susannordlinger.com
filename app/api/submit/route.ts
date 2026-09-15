@@ -67,7 +67,7 @@ export async function POST(request: Request) {
   const outbound = new FormData();
   outbound.append("_subject", email.subject);
   outbound.append("_template", "table");
-  outbound.append("_replyto", fields.email.trim());
+  if (fields.email.trim()) outbound.append("_replyto", fields.email.trim());
   outbound.append("message", email.text);
   for (const key of FORM_KEYS) {
     const value = fields[key]?.trim();

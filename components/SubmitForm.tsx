@@ -42,6 +42,7 @@ export function SubmitForm() {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const formElement = event.currentTarget;
     if (issues.length) {
       setError(issues[0].message);
       return;
@@ -59,7 +60,7 @@ export function SubmitForm() {
       });
       body.append("photo", prepared);
 
-      const website = (event.currentTarget.elements.namedItem("website") as HTMLInputElement | null)?.value;
+      const website = (formElement.elements.namedItem("website") as HTMLInputElement | null)?.value;
       if (website) body.append("website", website);
 
       const response = await fetch("/api/submit", {
@@ -121,7 +122,6 @@ export function SubmitForm() {
           Your name
         </span>
         <input
-          required
           className={fieldClass}
           value={fields.name}
           onChange={(event) => update("name", event.target.value)}
@@ -133,7 +133,6 @@ export function SubmitForm() {
           Your email
         </span>
         <input
-          required
           type="email"
           className={fieldClass}
           value={fields.email}
@@ -143,7 +142,7 @@ export function SubmitForm() {
       </label>
       <label className="block">
         <span className="text-[0.72rem] font-light uppercase tracking-[0.2em] text-stone">
-          Phone <span className="normal-case tracking-normal">(optional)</span>
+          Phone
         </span>
         <input
           type="tel"
@@ -158,7 +157,6 @@ export function SubmitForm() {
           Painting title
         </span>
         <input
-          required
           className={fieldClass}
           value={fields.title}
           onChange={(event) => update("title", event.target.value)}
@@ -200,7 +198,10 @@ export function SubmitForm() {
       </div>
       <label className="block">
         <span className="text-[0.72rem] font-light uppercase tracking-[0.2em] text-stone">
-          Photo of the painting
+          Photo of the painting{" "}
+          <span aria-hidden="true" className="text-ink">
+            *
+          </span>
         </span>
         <input
           required
@@ -224,7 +225,7 @@ export function SubmitForm() {
       ) : null}
       <label className="block">
         <span className="text-[0.72rem] font-light uppercase tracking-[0.2em] text-stone">
-          Note <span className="normal-case tracking-normal">(optional)</span>
+          Note
         </span>
         <textarea
           className={`${fieldClass} min-h-24 resize-y`}
