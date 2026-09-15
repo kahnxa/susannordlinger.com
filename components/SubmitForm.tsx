@@ -2,7 +2,9 @@
 
 import { useMemo, useState } from "react";
 import {
+  buildIntakeEmail,
   preparePaintingPhoto,
+  SUBMIT_TO_EMAIL,
   validateSubmit,
   type SubmitFields,
 } from "@/lib/submit";
@@ -53,24 +55,48 @@ export function SubmitForm() {
     setError(null);
 
     try {
+      const website = (formElement.elements.namedItem("website") as HTMLInputElement | null)?.value;
+      if (website?.trim()) {
+        // Honeypot tripped: pretend success without sending anything.
+        setStatus("sent");
+        setFields(emptyFields);
+        setPhoto(null);
+        setPreview(null);
+        return;
+      }
+
       const prepared = await preparePaintingPhoto(photo);
+      const email = buildIntakeEmail(fields);
       const body = new FormData();
+      body.append("_subject", email.subject);
+      body.append("_template", "table");
+      if (fields.email?.trim()) body.append("_replyto", fields.email.trim());
+      body.append("message", email.text);
       Object.entries(fields).forEach(([key, value]) => {
         if (value?.trim()) body.append(key, value.trim());
       });
-      body.append("photo", prepared);
+      body.append("attachment", prepared, prepared.name || "painting.jpg");
 
-      const website = (formElement.elements.namedItem("website") as HTMLInputElement | null)?.value;
-      if (website) body.append("website", website);
-
-      const response = await fetch("/api/submit", {
+      // Sent from the browser on purpose: FormSubmit blocks requests from
+      // datacenter IPs, so relaying through our server never delivers.
+      const response = await fetch(`https://formsubmit.co/ajax/${SUBMIT_TO_EMAIL}`, {
         method: "POST",
-        body: body,
+        headers: { Accept: "application/json" },
+        body,
       });
-      const payload = (await response.json()) as { error?: string };
+      const payload = (await response.json().catch(() => null)) as {
+        success?: string | boolean;
+        message?: string;
+      } | null;
 
-      if (!response.ok) {
-        throw new Error(payload.error || "The painting could not be sent.");
+      const succeeded =
+        response.ok &&
+        (payload?.success === true || payload?.success === "true");
+      if (!succeeded) {
+        throw new Error(
+          payload?.message ||
+            `The painting could not be sent just now. Please email Heather directly at ${SUBMIT_TO_EMAIL}.`,
+        );
       }
 
       setStatus("sent");
